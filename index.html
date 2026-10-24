@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f0ff">
+  <title>Un rinconcito para ti</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17131d;
+      --muted: #625a6c;
+      --pink: #b99af7;
+      --pink-dark: #7046ad;
+      --peach: #f3edff;
+      --lavender: #e6dcff;
+      --card: rgba(255, 255, 255, .88);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: ui-rounded, "Avenir Next", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 8% 12%, #e8ddff 0, transparent 32%),
+        radial-gradient(ellipse at 90% 15%, #d8c8ff 0, transparent 30%),
+        linear-gradient(145deg, #fbf9ff, #f5f0ff 55%, #eee8fa);
+    }
+
+    button { font: inherit; }
+
+    .page {
+      width: min(100% - 32px, 920px);
+      margin: 0 auto;
+      padding: 34px 0 52px;
+    }
+
+    header { text-align: center; }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border: 1px solid #d9c9f5;
+      border-radius: 999px;
+      color: #593783;
+      background: rgba(255, 255, 255, .62);
+      font-size: .82rem;
+      letter-spacing: .04em;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.5rem, 8vw, 4.6rem);
+      font-weight: 500;
+      letter-spacing: -.055em;
+      line-height: 1.02;
+    }
+
+    h1 span { color: var(--pink-dark); }
+
+    .intro {
+      max-width: 570px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.7;
+    }
+
+    .card {
+      border: 1px solid rgba(255, 255, 255, .95);
+      border-radius: 28px;
+      background: var(--card);
+      box-shadow: 0 18px 55px rgba(35, 24, 51, .11);
+      backdrop-filter: blur(12px);
+    }
+
+    .message-card {
+      max-width: 700px;
+      min-height: 225px;
+      margin: 34px auto 22px;
+      padding: clamp(24px, 6vw, 45px);
+      text-align: center;
+    }
+
+    .sparkle { font-size: 1.7rem; }
+
+    .message {
+      max-width: 570px;
+      margin: 15px auto 22px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.45rem, 4vw, 2.15rem);
+      line-height: 1.4;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .message.changing { opacity: 0; transform: translateY(6px); }
+
+    .button {
+      min-height: 48px;
+      padding: 12px 20px;
+      border: 0;
+      border-radius: 999px;
+      color: white;
+      background: var(--pink-dark);
+      box-shadow: 0 7px 18px rgba(75, 43, 119, .22);
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .button:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(75, 43, 119, .3); }
+    .button:focus-visible, .mood-button:focus-visible { outline: 3px solid #56328c; outline-offset: 3px; }
+    .button.secondary { color: #49306d; background: #eee6fb; box-shadow: none; }
+
+    .sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .extra-sections { margin-top: 18px; }
+
+    .section-card { padding: 24px; }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.14rem;
+    }
+
+    .hint { margin: 0 0 17px; color: var(--muted); font-size: .94rem; line-height: 1.55; }
+
+    .moods { display: flex; flex-wrap: wrap; gap: 9px; }
+
+    .mood-button {
+      padding: 9px 12px;
+      border: 1px solid #ddd3eb;
+      border-radius: 999px;
+      color: var(--ink);
+      background: white;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+
+    .mood-button:hover { transform: translateY(-1px); }
+    .mood-button[aria-pressed="true"] { border-color: #9873cf; background: #eee6fb; }
+
+    .mood-response {
+      min-height: 48px;
+      margin: 16px 0 0;
+      color: #40304f;
+      line-height: 1.5;
+    }
+
+    .breathing {
+      display: grid;
+      min-height: 120px;
+      place-items: center;
+      margin: 6px 0 14px;
+      border-radius: 20px;
+      background: linear-gradient(140deg, var(--lavender), var(--peach));
+      text-align: center;
+    }
+
+    .breath-orb {
+      display: grid;
+      width: 76px;
+      height: 76px;
+      place-items: center;
+      border: 2px solid rgba(255, 255, 255, .9);
+      border-radius: 50%;
+      color: #4c3470;
+      background: rgba(255, 255, 255, .58);
+      font-size: .85rem;
+      transition: transform 4s ease-in-out;
+    }
+
+    .breath-orb.active { transform: scale(1.3); }
+    .breath-status { margin: 0 0 14px; color: var(--muted); text-align: center; font-size: .93rem; }
+    .breath-controls { display: flex; justify-content: center; }
+
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: clamp(12px, 5vw, 32px);
+      margin: 20px 0;
+    }
+
+    .star-button {
+      width: 62px;
+      height: 62px;
+      border: 1px solid #d9ccef;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #f2eaff, #e1d5fa);
+      cursor: pointer;
+      font-size: 1.8rem;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .star-button:hover { transform: translateY(-4px) rotate(-5deg); }
+    .star-button.revealed { background: #e9ddff; }
+    .star-button:focus-visible { outline: 3px solid #56328c; outline-offset: 3px; }
+
+    .star-response, .mission-response {
+      min-height: 48px;
+      margin: 0;
+      color: #40304f;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .mission-box {
+      display: grid;
+      min-height: 100px;
+      place-items: center;
+      margin: 18px 0;
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(140deg, var(--peach), var(--lavender));
+    }
+
+    .mission-response { font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; }
+    .mission-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+    .laugh-section { margin-top: 18px; text-align: center; }
+    .joke-box {
+      display: grid;
+      min-height: 118px;
+      place-items: center;
+      margin: 18px 0;
+      padding: 20px;
+      border-radius: 20px;
+      background: linear-gradient(140deg, #eee6fb, #f8f5ff);
+    }
+    .joke-text {
+      max-width: 620px;
+      margin: 0;
+      color: #292132;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.2rem;
+      line-height: 1.6;
+    }
+
+    .music-section { margin-top: 18px; text-align: center; }
+    .music-icon {
+      display: grid;
+      width: 76px;
+      height: 76px;
+      place-items: center;
+      margin: 18px auto;
+      border: 1px solid #d9ccef;
+      border-radius: 50%;
+      color: #56328c;
+      background: linear-gradient(145deg, #eee6fb, #d9c9fa);
+      font-size: 2rem;
+    }
+    .music-message { max-width: 600px; margin: 0 auto 18px; color: var(--muted); line-height: 1.65; }
+    .music-player {
+      display: block;
+      width: min(100%, 640px);
+      aspect-ratio: 16 / 9;
+      margin: 18px auto 0;
+      border: 0;
+      border-radius: 20px;
+      background: #17131d;
+      box-shadow: 0 10px 24px rgba(35, 24, 51, .16);
+    }
+
+    .pup-section { margin-top: 18px; text-align: center; }
+    .pup-button {
+      display: grid;
+      width: 128px;
+      height: 128px;
+      place-items: center;
+      margin: 18px auto 12px;
+      border: 3px solid white;
+      border-radius: 42% 58% 48% 52%;
+      background: linear-gradient(145deg, #eee4ff, #d9c9fa);
+      box-shadow: 0 10px 24px rgba(35, 24, 51, .16);
+      cursor: pointer;
+      font-size: 4.6rem;
+      transition: transform .2s ease;
+    }
+
+    .pup-button:hover { transform: scale(1.06) rotate(-4deg); }
+    .pup-button.wag { animation: wag .55s ease-in-out; }
+    .pup-button:focus-visible { outline: 3px solid #56328c; outline-offset: 4px; }
+    .pup-response { min-height: 48px; margin: 0; color: #40304f; line-height: 1.55; }
+    .pup-count { margin: 12px 0 0; color: var(--muted); font-size: .9rem; }
+
+    footer {
+      max-width: 570px;
+      margin: 26px auto 0;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .hug-card { margin-top: 18px; padding: 26px; text-align: center; }
+    .hug-card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.45rem; }
+    .hug-message { max-width: 580px; margin: 10px auto 18px; color: var(--muted); line-height: 1.7; }
+    .hug-button { font-size: 1rem; }
+    .hug-response { min-height: 28px; margin: 14px 0 0; color: #40304f; line-height: 1.5; }
+
+    .heart {
+      position: fixed;
+      z-index: 2;
+      pointer-events: none;
+      animation: float-up 1.8s ease-out forwards;
+    }
+
+    @keyframes float-up {
+      from { opacity: 1; transform: translateY(0) rotate(0); }
+      to { opacity: 0; transform: translateY(-130px) rotate(22deg); }
+    }
+
+    @keyframes wag {
+      0%, 100% { transform: rotate(0); }
+      25% { transform: rotate(-9deg) scale(1.06); }
+      75% { transform: rotate(9deg) scale(1.06); }
+    }
+
+    @media (max-width: 650px) {
+      .page { padding-top: 24px; }
+      .sections { grid-template-columns: 1fr; }
+      .section-card { padding: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <span class="eyebrow">✦ Un pequeño recordatorio para ti ✦</span>
+      <h1>Hola, <span>July</span></h1>
+      <p class="intro">Este rinconcito es tuyo, July. No tienes que tener todo resuelto hoy: aquí puedes respirar, elegir cómo te sientes y encontrar unas palabras amables cuando las necesites.</p>
+    </header>
+
+    <section class="card message-card" aria-labelledby="message-title">
+      <div class="sparkle" aria-hidden="true">✨</div>
+      <p class="message" id="message" aria-live="polite">No tienes que poder con todo hoy. Con dar el siguiente pasito basta.</p>
+      <button class="button" id="message-button" type="button">Regálame otro mensajito 💌</button>
+    </section>
+
+    <div class="sections">
+      <section class="card section-card" aria-labelledby="mood-title">
+        <h2 id="mood-title">¿Cómo está tu corazón hoy?</h2>
+        <p class="hint">Puedes elegir lo que más se acerque. No hay respuestas incorrectas.</p>
+        <div class="moods" role="group" aria-label="Elige cómo te sientes">
+          <button class="mood-button" type="button" data-mood="cansada" aria-pressed="false">😮‍💨 Cansada</button>
+          <button class="mood-button" type="button" data-mood="triste" aria-pressed="false">🌧️ Triste</button>
+          <button class="mood-button" type="button" data-mood="ansiosa" aria-pressed="false">🫧 Con mil cosas</button>
+          <button class="mood-button" type="button" data-mood="bien" aria-pressed="false">🌷 Un poquito mejor</button>
+        </div>
+        <p class="mood-response" id="mood-response" aria-live="polite">Sea como sea que te sientas, está bien darte un momento.</p>
+      </section>
+
+      <section class="card section-card" aria-labelledby="breath-title">
+        <h2 id="breath-title">Una pausa pequeñita</h2>
+        <p class="hint">Si te apetece, acompaña el círculo: toma aire al crecer y suéltalo al volver.</p>
+        <div class="breathing" aria-hidden="true">
+          <div class="breath-orb" id="breath-orb">Aquí</div>
+        </div>
+        <p class="breath-status" id="breath-status" aria-live="polite">Una respiración a la vez.</p>
+        <div class="breath-controls">
+          <button class="button secondary" id="breath-button" type="button">Empezar pausa</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="sections extra-sections">
+      <section class="card section-card" aria-labelledby="stars-title">
+        <h2 id="stars-title">Abre una estrellita ✨</h2>
+        <p class="hint">Cada una guarda una sorpresa bonita para ti. ¿Cuál eliges primero?</p>
+        <div class="stars" role="group" aria-label="Estrellitas sorpresa">
+          <button class="star-button" type="button" aria-label="Abrir estrellita 1" aria-pressed="false">⭐</button>
+          <button class="star-button" type="button" aria-label="Abrir estrellita 2" aria-pressed="false">🌟</button>
+          <button class="star-button" type="button" aria-label="Abrir estrellita 3" aria-pressed="false">✨</button>
+        </div>
+        <p class="star-response" id="star-response" aria-live="polite">Psst… todas tienen algo lindo para decirte.</p>
+      </section>
+
+      <section class="card section-card" aria-labelledby="mission-title">
+        <h2 id="mission-title">Una mini misión amable 🌷</h2>
+        <p class="hint">Elige algo pequeñito solo para ti. Puedes cambiar de idea cuando quieras.</p>
+        <div class="mission-box">
+          <p class="mission-response" id="mission-response" aria-live="polite">¿Qué cosita amable te gustaría hacer hoy?</p>
+        </div>
+        <div class="mission-controls">
+          <button class="button secondary" id="mission-button" type="button">Dame una idea 💡</button>
+          <button class="button" id="mission-done" type="button" hidden>¡Lo hice! 🌼</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="card section-card laugh-section" aria-labelledby="laugh-title">
+      <h2 id="laugh-title">Un ratito de risoterapia 😂</h2>
+      <p class="hint">No hace falta que sea el chiste del siglo… ¡con una sonrisita ya ganamos!</p>
+      <div class="joke-box">
+        <p class="joke-text" id="joke-text" aria-live="polite">¿Qué hace un perro con un taladro? ¡Taladrando! 🐶</p>
+      </div>
+      <button class="button" id="joke-button" type="button">Cuéntame otro chiste 😄</button>
+    </section>
+
+    <section class="card section-card music-section" aria-labelledby="music-title">
+      <h2 id="music-title">Una canción para llenar de esperanza 🎶</h2>
+      <div class="music-icon" aria-hidden="true">♫</div>
+      <p class="music-message">Si te apetece, tómate un momento para escuchar <strong>“Color Esperanza” de Diego Torres</strong>. Que su música te acompañe y te recuerde que siempre puede aparecer un poquito de luz. 💜</p>
+      <iframe
+        class="music-player"
+        src="https://www.youtube-nocookie.com/embed/Nb1VOQRs-Vs"
+        title="Diego Torres - Color Esperanza (video oficial)"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </section>
+
+    <section class="card section-card pup-section" aria-labelledby="pup-title">
+    <h2 id="pup-title">Un saludito para Milo 🐶</h2>
+    <p class="hint">La compañía y las patitas de Milo seguro hacen los días un poquito más lindos.</p>
+    <button class="pup-button" id="pup-button" type="button" aria-label="Tocar a Milo para recibir una patita">🐶</button>
+      <p class="pup-response" id="pup-response" aria-live="polite">¡Toca a Milo para recibir una patita virtual!</p>
+      <p class="pup-count" id="pup-count">Patitas recibidas: 0 🐾</p>
+    </section>
+
+    <footer>
+      <section class="card hug-card" aria-labelledby="hug-title">
+        <h2 id="hug-title">Un abrazo a la distancia para ti, July 🫂</h2>
+        <p class="hug-message">Si algún día te sientes mal, no dudes en buscar a tus amigos. Te quieren y estarán felices de acompañarte; no tienes que pasar por un día difícil sola.</p>
+        <button class="button hug-button" id="hug-button" type="button">Recibir un abrazo virtual 🫂</button>
+        <p class="hug-response" id="hug-response" aria-live="polite">Imagina un abrazo grande, calientito y lleno de cariño. 💛</p>
+      </section>
+      <p>Siempre hay alguien que quiere escucharte. 💛</p>
+    </footer>
+  </main>
+
+  <script>
+    const messages = [
+      "No tienes que poder con todo hoy. Con dar el siguiente pasito basta.",
+      "Tu valor no depende de cuánto logres hacer en un día.",
+      "Incluso en los días nublados, sigues siendo una persona muy especial.",
+      "Descansar también cuenta. Tratarte con cariño también es avanzar.",
+      "No tienes que sentirte bien todo el tiempo para merecer cosas bonitas.",
+      "Has llegado hasta aquí, y eso también merece un poquito de orgullo.",
+      "Un día difícil no define toda tu historia. Hay más páginas por escribir.",
+      "Ojalá hoy puedas regalarte la misma paciencia que le das a quienes quieres.",
+      "No estás sola: hay personas que se alegran de tenerte en su vida.",
+      "Por ahora, basta con respirar. Lo demás puede esperar un momento."
+    ];
+
+    const message = document.querySelector("#message");
+    let messageIndex = 0;
+
+    document.querySelector("#message-button").addEventListener("click", (event) => {
+      message.classList.add("changing");
+      window.setTimeout(() => {
+        messageIndex = (messageIndex + 1 + Math.floor(Math.random() * (messages.length - 1))) % messages.length;
+        message.textContent = messages[messageIndex];
+        message.classList.remove("changing");
+      }, 180);
+
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      for (let i = 0; i < 5; i += 1) {
+        const heart = document.createElement("span");
+        heart.className = "heart";
+        heart.setAttribute("aria-hidden", "true");
+        heart.textContent = ["💛", "✨", "🌷"][i % 3];
+        heart.style.left = `${rect.left + rect.width / 2 + (Math.random() - 0.5) * 100}px`;
+        heart.style.top = `${rect.top}px`;
+        heart.style.animationDelay = `${i * 70}ms`;
+        document.body.append(heart);
+        window.setTimeout(() => heart.remove(), 2100);
+      }
+    });
+
+    const moodResponses = {
+      cansada: "No tienes que ganarte el descanso. Date permiso para ir despacito. 🌿",
+      triste: "Siento que hoy pese un poquito. Puedes sentirlo sin exigirte cambiarlo enseguida. 💛",
+      ansiosa: "Vamos de a una cosa a la vez. No hace falta resolverlo todo en este instante. 🫶",
+      bien: "Qué bonito que haya un poquito de luz hoy. Ojalá puedas disfrutarla sin apuro. 🌷"
+    };
+
+    document.querySelectorAll(".mood-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".mood-button").forEach((item) => item.setAttribute("aria-pressed", "false"));
+        button.setAttribute("aria-pressed", "true");
+        document.querySelector("#mood-response").textContent = moodResponses[button.dataset.mood];
+      });
+    });
+
+    const starMessages = [
+      "July, tu presencia hace más bonito el mundo de alguien. 💛",
+      "No hace falta brillar todos los días para ser una estrella. ✨",
+      "Mereces cariño, incluso —y especialmente— en los días difíciles. 🌷"
+    ];
+    const starButtons = document.querySelectorAll(".star-button");
+    let starsOpened = 0;
+
+    starButtons.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        if (button.getAttribute("aria-pressed") === "true") return;
+        button.setAttribute("aria-pressed", "true");
+        button.classList.add("revealed");
+        button.textContent = "💛";
+        starsOpened += 1;
+        document.querySelector("#star-response").textContent = starsOpened === starButtons.length
+          ? `${starMessages[index]} ¡Abriste todas! Te mando un abrazo enorme. 🫂`
+          : starMessages[index];
+      });
+    });
+
+    const missions = [
+      "Toma un vaso de agua y brinda por ti. 🥤",
+      "Pon tu canción favorita y disfruta un ratito. 🎶",
+      "Estírate como gatita durante unos segundos. 🐈",
+      "Mándale un hola a alguien que te haga bien. 💌",
+      "Busca algo bonito a tu alrededor y obsérvalo. 🌼",
+      "Regálate cinco minutos sin apuro. ☁️",
+      "Si puedes, dale una caricia a Milo y disfruta de su compañía. 🐶",
+      "Tómate un ratito para jugar o pasear con Milo, si a los dos les apetece. 🐾"
+    ];
+    const missionResponse = document.querySelector("#mission-response");
+    const missionButton = document.querySelector("#mission-button");
+    const missionDone = document.querySelector("#mission-done");
+
+    missionButton.addEventListener("click", () => {
+      missionResponse.textContent = missions[Math.floor(Math.random() * missions.length)];
+      missionDone.hidden = false;
+      missionDone.focus();
+    });
+
+    missionDone.addEventListener("click", () => {
+      missionResponse.textContent = "¡Qué orgullo, July! Cada gesto amable contigo cuenta. 🌼";
+      missionDone.hidden = true;
+      missionButton.textContent = "Otra idea 💡";
+    });
+
+    const jokes = [
+      "¿Qué hace un perro con un taladro? ¡Taladrando! 🐶",
+      "¿Qué le dice una iguana a su hermana gemela? ¡Iguanita! 🦎",
+      "¿Qué hace una abeja en el gimnasio? ¡Zumba! 🐝",
+      "¿Qué le dijo un techo a otro? Techo de menos. 🏠",
+      "¿Cuál es el colmo de un jardinero? Que siempre lo dejen plantado. 🌱",
+      "¿Qué hace una computadora cuando tiene frío? ¡Cierra Windows! 💻",
+      "Milo fue a la escuela de música… ¡y ahora sabe tocar el guau-piano! 🎹🐾",
+      "¿Qué animal es dos veces animal? El gato, porque es gato y araña. 🐱",
+      "¿Qué le dice una pared a otra pared? Nos vemos en la esquina. 🧱",
+      "¿Por qué el libro de matemáticas estaba triste? Porque tenía muchos problemas. 📘",
+      "¿Qué hace una vaca cuando sale el sol? ¡Sombra! 🐄",
+      "¿Cómo se despiden los químicos? Ácido un placer. 🧪",
+      "¿Qué le dijo el cero al ocho? ¡Qué bonito cinturón! 0️⃣",
+      "¿Por qué los pájaros no usan Facebook? Porque ya tienen Twitter. 🐦",
+      "¿Qué hace una taza en el gimnasio? ¡Toma té! ☕",
+      "¿Cuál es el café más peligroso del mundo? ¡El ex-preso! ☕",
+      "¿Qué le dice un semáforo a otro? No me mires, ¡me estoy cambiando! 🚦",
+      "¿Qué hace una nube con picazón? ¡Se rasca-cielo! ☁️",
+      "¿Qué le dijo una tortilla a otra? ¡Nos vemos en la vuelta! 🌮"
+    ];
+    let previousJoke = 0;
+    document.querySelector("#joke-button").addEventListener("click", () => {
+      const choices = jokes.map((_, index) => index).filter((index) => index !== previousJoke);
+      previousJoke = choices[Math.floor(Math.random() * choices.length)];
+      document.querySelector("#joke-text").textContent = jokes[previousJoke];
+    });
+
+    const pupButton = document.querySelector("#pup-button");
+    const pupResponse = document.querySelector("#pup-response");
+    let pawCount = 0;
+    const pupMessages = [
+      "¡Patita! Milo seguro que se alegra muchísimo de tenerte. 🐾",
+      "Un abrazo peludito imaginario para ti y Milo, July. 🐶💛",
+      "Milo te recuerda: mereces mucho amor. 🐕",
+      "¡Guau, July! Aquí va una dosis extra de cariño y alegría. ✨",
+      "Pase lo que pase, Milo siempre tiene una patita lista para acompañarte. 🐾"
+    ];
+
+    pupButton.addEventListener("click", () => {
+      pawCount += 1;
+      pupButton.classList.remove("wag");
+      void pupButton.offsetWidth;
+      pupButton.classList.add("wag");
+      pupResponse.textContent = pupMessages[(pawCount - 1) % pupMessages.length];
+      document.querySelector("#pup-count").textContent = `Patitas recibidas: ${pawCount} 🐾`;
+    });
+
+    const hugButton = document.querySelector("#hug-button");
+    const hugResponse = document.querySelector("#hug-response");
+    const hugs = ["🫂", "💛", "🫂", "✨", "💖"];
+
+    hugButton.addEventListener("click", () => {
+      hugResponse.textContent = "Te mando un abrazo enorme hasta donde estés, July. 💛";
+      const rect = hugButton.getBoundingClientRect();
+      hugs.forEach((symbol, index) => {
+        const hug = document.createElement("span");
+        hug.className = "heart";
+        hug.setAttribute("aria-hidden", "true");
+        hug.textContent = symbol;
+        hug.style.fontSize = "1.5rem";
+        hug.style.left = `${rect.left + rect.width / 2 + (index - 2) * 28}px`;
+        hug.style.top = `${rect.top}px`;
+        hug.style.animationDelay = `${index * 80}ms`;
+        document.body.append(hug);
+        window.setTimeout(() => hug.remove(), 2100);
+      });
+    });
+
+    const breathOrb = document.querySelector("#breath-orb");
+    const breathStatus = document.querySelector("#breath-status");
+    const breathButton = document.querySelector("#breath-button");
+    let breathing = false;
+    let breathTimer;
+    let breathCount = 0;
+
+    function breathe() {
+      if (!breathing) return;
+      breathOrb.classList.toggle("active");
+      const inhaling = breathOrb.classList.contains("active");
+      breathOrb.textContent = inhaling ? "Inhala" : "Exhala";
+      breathStatus.textContent = inhaling ? "Toma aire con calma…" : "Suéltalo despacito…";
+      if (!inhaling) {
+        breathCount += 1;
+        if (breathCount >= 4) {
+          breathing = false;
+          breathButton.textContent = "Empezar otra vez";
+          breathOrb.textContent = "Aquí";
+          breathStatus.textContent = "Muy bien. Quédate aquí el tiempo que necesites.";
+          return;
+        }
+      }
+      breathTimer = window.setTimeout(breathe, 4000);
+    }
+
+    breathButton.addEventListener("click", () => {
+      if (breathing) {
+        breathing = false;
+        window.clearTimeout(breathTimer);
+        breathOrb.classList.remove("active");
+        breathOrb.textContent = "Aquí";
+        breathStatus.textContent = "Pausa detenida. Puedes volver cuando quieras.";
+        breathButton.textContent = "Continuar pausa";
+        return;
+      }
+      breathCount = 0;
+      breathing = true;
+      breathButton.textContent = "Pausar";
+      breathe();
+    });
+  </script>
+</body>
+</html>
